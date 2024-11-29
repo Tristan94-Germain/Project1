@@ -86,7 +86,7 @@ void Updatetext(sf::RenderWindow& window) {
     sf::Font font;
 
 
-    if (!font.loadFromFile("C:\\Users\\tgermain\\source\\repos\\Project1\\Project1\\x64\\Release\\Starjhol.ttf")) {
+    if (!font.loadFromFile("Asset\\Starjhol.ttf")) {
         std::cerr << "Erreur de chargement de la police !" << std::endl;
     }
 
@@ -113,7 +113,7 @@ void Updatetext(sf::RenderWindow& window) {
 
 void mainMenu(sf::RenderWindow& window, bool& gameStarted) {
     sf::Font font;
-    if (!font.loadFromFile("C:\\Users\\tgermain\\source\\repos\\Project1\\Project1\\x64\\Release\\Starjhol.ttf")) {
+    if (!font.loadFromFile("Asset\\Starjhol.ttf")) {
         std::cerr << "Erreur de chargement de la police !" << std::endl;
         return;
     }
@@ -157,7 +157,7 @@ int main() {
 
 
     sf::Texture backgroundTexture;
-    if (!backgroundTexture.loadFromFile("C:\\Users\\tgermain\\source\\repos\\Project1\\Project1\\x64\\Release\\background.jpg")) {
+    if (!backgroundTexture.loadFromFile("Asset\\background.jpg")) {
         std::cerr << "Erreur de chargement de la texture du fond !" << std::endl;
         return -1;
     }
@@ -167,7 +167,7 @@ int main() {
     backgroundSprite.setScale(sf::Vector2f{ 3.5f, 2.0f });
 
     sf::Texture playerTexture;
-    if (!playerTexture.loadFromFile("C:\\Users\\tgermain\\source\\repos\\Project1\\Project1\\x64\\Release\\R.png")) {
+    if (!playerTexture.loadFromFile("Asset\\R.png")) {
         return -1;
     }
 
@@ -179,14 +179,14 @@ int main() {
 
 
     sf::Texture enemyTexture;
-    if (!enemyTexture.loadFromFile("C:\\Users\\tgermain\\source\\repos\\Project1\\Project1\\x64\\Release\\TIEV2.png")) {
+    if (!enemyTexture.loadFromFile("Asset\\TIEV2.png")) {
         std::cerr << "Erreur de chargement de la texture de l'ennemi !" << std::endl;
         return -1;
     }
 
 
     sf::SoundBuffer menuMusicBuffer;
-    if (!menuMusicBuffer.loadFromFile("C:\\Users\\tgermain\\source\\repos\\Project1\\Project1\\x64\\Release\\Star-Wars-_Main-Theme_.ogg")) {
+    if (!menuMusicBuffer.loadFromFile("Asset\\Star-Wars-_Main-Theme_.ogg")) {
         std::cout << "Erreur : Impossible de charger la musique du menu." << std::endl;
         return -1;
     }
@@ -198,7 +198,7 @@ int main() {
 
 
     sf::SoundBuffer gameMusicBuffer;
-    if (!gameMusicBuffer.loadFromFile("C:\\Users\\tgermain\\source\\repos\\Project1\\Project1\\x64\\Release\\Anakin-vs.-Obi-Wan.ogg")) {
+    if (!gameMusicBuffer.loadFromFile("Asset\\Anakin-vs.-Obi-Wan.ogg")) {
         std::cout << "Erreur : Impossible de charger la musique du jeu." << std::endl;
         return -1;
     }
@@ -234,7 +234,7 @@ int main() {
 
     // Boucle de jeu principale
     while (window.isOpen() && gameStarted) {
-        float deltaTime = clock.restart().asSeconds();  // Calculer le temps écoulé depuis la dernière image
+        float deltaTime = clock.restart().asSeconds();  
 
         sf::Event event;
         while (window.pollEvent(event)) {
