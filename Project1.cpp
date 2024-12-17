@@ -3,9 +3,20 @@
 #include <vector>
 #include <ctime>
 #include <SFML/Audio.hpp>
+#include <SFML/Window.hpp>
+
 
 sf::Texture EnnemyBullets;
 sf::Texture SniperBullets;
+enum Difficulty {
+    Easy,
+    Medium,
+    Hard
+};
+
+
+Difficulty difficulty;
+
 
 // Classe représentant un projectile du joueur
 class Bullet {
@@ -13,7 +24,7 @@ public:
     sf::Sprite sprite;
     float speed;
 
-    Bullet(float x, float y, float speed, const sf :: Texture & texture ) {
+    Bullet(float x, float y, float speed, const sf::Texture& texture) {
         sprite.setTexture(texture);
         sprite.setScale(sf::Vector2f(0.01, 0.01));
         sprite.setPosition(x, y);
@@ -30,15 +41,15 @@ public:
     int damage;
 
     LaserBullet(float x, float y) {
-        shape.setSize(sf::Vector2f(10.f, 500.f));  
-        shape.setFillColor(sf::Color::Red);  
+        shape.setSize(sf::Vector2f(10.f, 500.f));
+        shape.setFillColor(sf::Color::Red);
         shape.setPosition(x, y);
         damage = 3;
-       
+
     }
 
     void move(float deltaTime) {
-        shape.move(0.f, -500.f * deltaTime);  
+        shape.move(0.f, -500.f * deltaTime);
     }
 };
 
@@ -52,11 +63,14 @@ public:
     sf::Sprite sprite;
     float speed;
 
-    EnemyBullet(float x, float y, float speed, const sf:: Texture& texture) {
+    EnemyBullet(float x, float y, float speed, const sf::Texture& texture) {
         sprite.setTexture(texture);
         sprite.setScale(sf::Vector2f(0.01, 0.01));
         sprite.setPosition(x, y);
-        this->speed = speed;
+
+        (difficulty == 1) ? this->speed = speed * 2  : this->speed = speed;
+        (difficulty == 2) ? this->speed = speed * 5 : this->speed = speed;
+
     }
 
     void move(float deltaTime) {
@@ -70,16 +84,17 @@ public:
     sf::Vector2f direction;
     float speed;
 
-    SniperBullet(float x, float y, sf::Vector2f playerPosition, float speed, const sf :: Texture& texture) {
+    SniperBullet(float x, float y, sf::Vector2f playerPosition, float speed, const sf::Texture& texture) {
         sprite.setTexture(texture);
         sprite.setScale(sf::Vector2f(0.01, 0.01));
         sprite.setPosition(x, y);
-        this->speed = speed * 2;
+        (difficulty == 1) ? this->speed = speed * 2: this->speed = speed;
+        (difficulty == 2) ? this->speed = speed * 5 : this->speed = speed;
 
         // Calculer la direction vers le joueur
         sf::Vector2f delta = playerPosition - sf::Vector2f(x, y);
-        float length = std::sqrt(delta.x * delta.x + delta.y * delta.y); 
-        direction = delta / length; 
+        float length = std::sqrt(delta.x * delta.x + delta.y * delta.y);
+        direction = delta / length;
     }
 
     void move(float deltaTime) {
@@ -93,7 +108,7 @@ public:
 class Enemy {
 public:
     sf::Sprite sprite;
-    
+
     float speed;
     float shootTimer;
     float shootInterval;
@@ -102,9 +117,13 @@ public:
         sprite.setTexture(texture);
         sprite.setScale(0.1f, 0.1f);
         sprite.setPosition({ x, y });
-        this->speed = speed;
+        (difficulty == 1) ? this->speed = 100 : this->speed = speed;
+        (difficulty == 2) ? this->speed = speed * 5 : this->speed = speed;
         shootTimer = 0.0f;
-        shootInterval = 2.0f;
+
+
+        (difficulty == 1) ? shootInterval = 0.5f : shootInterval = 2.0f;
+        (difficulty == 2) ? shootInterval = 0.5f : shootInterval = 2.0f;
     }
 
 
@@ -130,14 +149,16 @@ public:
     float shootTimer;
     float shootInterval;
 
-    StrongEnemy(float x, float y, float speed,const sf:: Texture & texture) {
+    StrongEnemy(float x, float y, float speed, const sf::Texture& texture) {
         sprite.setTexture(texture);
         sprite.setScale(0.1f, 0.1f);
         sprite.setPosition({ x,y });
-        this->speed = speed * 0.5;
+        (difficulty == 1) ? this->speed = speed : this->speed = speed;
+        (difficulty == 2) ? this->speed = speed * 5 : this->speed = speed;
         this->resistance = 3;
         shootTimer = 0.0f;
-        shootInterval = 5.0f;
+        (difficulty == 1) ? shootInterval = 1.5f : shootInterval = 2.0f;
+        (difficulty == 2) ? shootInterval = 0.5f : shootInterval = 2.0f;
     }
 
     void move(float deltaTime) {
@@ -165,10 +186,12 @@ public:
         sprite.setTexture(texture);
         sprite.setScale(0.08f, 0.08f);
         sprite.setPosition({ x,y });
-        this->speed = speed;
+        (difficulty == 1) ? this->speed = speed : this->speed = speed;
+        (difficulty == 2) ? this->speed = speed * 5 : this->speed = speed;
         this->resistance = 2;
         shootTimer = 0.0f;
-        shootInterval = 4.0f;
+        (difficulty == 1) ? shootInterval = 1.5f : shootInterval = 2.0f;
+        (difficulty == 2) ? shootInterval = 0.5f : shootInterval = 2.0f;
     }
 
     void move(float deltaTime) {
@@ -194,7 +217,7 @@ public:
     float shootInterval;
     int direction;
 
-    Boss(float x, float y, float speed,const sf :: Texture & texture) {
+    Boss(float x, float y, float speed, const sf::Texture& texture) {
         sprite.setTexture(texture);
         sprite.setScale(0.2f, 0.2f);  // Couleur du boss
         sprite.setPosition({ x,50 });
@@ -236,15 +259,15 @@ public:
     sf::Sprite sprite;
     float speed;
 
-    MultiShotBonus(float x, float y,const sf :: Texture & texture ) {
+    MultiShotBonus(float x, float y, const sf::Texture& texture) {
         sprite.setScale(sf::Vector2f(0.1, 0.1));
         sprite.setTexture(texture);
         sprite.setPosition(x, y);
-        speed = 100.0f; 
+        speed = 100.0f;
     }
 
     void move(float deltaTime) {
-        sprite.move(0, speed * deltaTime); 
+        sprite.move(0, speed * deltaTime);
     }
 };
 
@@ -253,14 +276,14 @@ public:
     sf::Sprite sprite;
     float speed;
 
-    ShieldBonus(float x, float y,const sf :: Texture & texture) {
-        sprite.setScale(sf::Vector2f(0.1, 0.1));  
+    ShieldBonus(float x, float y, const sf::Texture& texture) {
+        sprite.setScale(sf::Vector2f(0.1, 0.1));
         sprite.setTexture(texture);
         sprite.setPosition(x, y);
-        speed = 100.0f;  
+        speed = 100.0f;
     }
 
-   
+
     void move(float deltaTime) {
         sprite.move(0, speed * deltaTime);
     }
@@ -272,26 +295,22 @@ public:
     sf::Sprite sprite;
     float speed;
     bool isActive;
-    
 
-    LaserBonus(float x, float y,const sf :: Texture & texture) {
+
+    LaserBonus(float x, float y, const sf::Texture& texture) {
         sprite.setScale(sf::Vector2f(0.1, 0.1));
         sprite.setTexture(texture);
         sprite.setPosition(x, y);
         speed = 100.0f;
         isActive = true;
-        
+
     }
 
-    
+
     void move(float deltaTime) {
-        sprite.move(0.f, 100.f * deltaTime);  
+        sprite.move(0.f, 100.f * deltaTime);
     }
 };
-
-  
-
-
 
 
 
@@ -376,231 +395,197 @@ void Updatetext(sf::RenderWindow& window) {
     window.draw(healthText);
 }
 
-// Fonction pour afficher le menu principal et attendre que le joueur commence
-void mainMenu(sf::RenderWindow& window, bool& gameStarted1, bool& shopOpened, bool& settingOpened, bool& settingSonOpened, bool& difficulty, bool& gameOpened,
-    bool& difficultyNormalOpened, bool& difficultyHardOpened, bool& gameStarted2, bool& gameStarted3) {
+
+
+
+
+
+Difficulty showDifficultyMenu(sf::RenderWindow& window, bool& settingOpened, bool& skinOpened, bool& menuActif) {
     sf::Font font;
     if (!font.loadFromFile("Asset\\Starjhol.ttf")) {
-        std::cerr << "Erreur de chargement de la police !" << std::endl;
-        return;
+        std::cerr << "Erreur de chargement de la police!" << std::endl;
+        return Difficulty::Easy;
     }
 
-    // Titre du jeu
-    sf::Text titleText;
-    titleText.setFont(font);
-    titleText.setCharacterSize(80);
-    titleText.setFillColor(sf::Color::Yellow);
-    titleText.setString("@");
-    titleText.setPosition(window.getSize().x / 1.96 - titleText.getLocalBounds().width / 3, window.getSize().y / 5);
+    // Déclaration des textes
+    sf::Text title("Orbitum Wars", font, 30);
+    title.setPosition(window.getSize().x / 2.f - title.getGlobalBounds().width / 2.f, 50);
 
-    // Texte pour commencer le jeu
-    sf::Text startText;
-    startText.setFont(font);
-    startText.setCharacterSize(30);
-    startText.setFillColor(sf::Color::White);
-    startText.setString("Play");
-    startText.setPosition(window.getSize().x / 1.96 - startText.getLocalBounds().width / 2, window.getSize().y / 2.5);
+    sf::Text easyText("Easy", font, 20);
+    easyText.setPosition(window.getSize().x / 2.f - easyText.getGlobalBounds().width / 2.f, 150);
 
-    // Texte pour afficher la boutique des skins
-    sf::Text shopText;
-    shopText.setFont(font);
-    shopText.setCharacterSize(30);
-    shopText.setFillColor(sf::Color::White);
-    shopText.setString("Skin");
-    shopText.setPosition(window.getSize().x / 1.96 - shopText.getLocalBounds().width / 2, window.getSize().y / 2);
+    sf::Text mediumText("Medium", font, 20);
+    mediumText.setPosition(window.getSize().x / 2.f - mediumText.getGlobalBounds().width / 2.f, 200);
 
-    // Texte pour afficher les options
-    sf::Text settingText;
-    settingText.setFont(font);
-    settingText.setCharacterSize(30);
-    settingText.setFillColor(sf::Color::White);
-    settingText.setString("Setting");
-    settingText.setPosition(window.getSize().x / 1.95
-   - settingText.getLocalBounds().width / 2, window.getSize().y / 1.70);
+    sf::Text hardText("Hard", font, 20);
+    hardText.setPosition(window.getSize().x / 2.f - hardText.getGlobalBounds().width / 2.f, 250);
 
-    // Texte pour afficher l'option Son
-    sf::Text settingOptionText;  // Déclaration ici
-    settingOptionText.setFont(font);
-    settingOptionText.setCharacterSize(40);
-    settingOptionText.setFillColor(sf::Color::White);
-    settingOptionText.setString("Sound");
-    settingOptionText.setPosition(window.getSize().x / 4 - settingOptionText.getLocalBounds().width / 2, window.getSize().y / 4);
+    sf::Text playText("Play", font, 20);
+    playText.setPosition(window.getSize().x / 2.f - playText.getGlobalBounds().width / 2.f, 200);
 
-    sf::Text difficultyNormalText;
-    difficultyNormalText.setFont(font);
-    difficultyNormalText.setCharacterSize(30);
-    difficultyNormalText.setFillColor(sf::Color::White);
-    difficultyNormalText.setString("Normal");
-    difficultyNormalText.setPosition(window.getSize().x / 2.75 - difficultyNormalText.getLocalBounds().width / 2, window.getSize().y / 3);
+    sf::Text skinText("Skin", font, 20);
+    skinText.setPosition(window.getSize().x / 2.f - skinText.getGlobalBounds().width / 2.f, 250);
 
-    sf::Text difficultyHardText;
-    difficultyHardText.setFont(font);
-    difficultyHardText.setCharacterSize(30);
-    difficultyHardText.setFillColor(sf::Color::White);
-    difficultyHardText.setString("Hard");
-    difficultyHardText.setPosition(window.getSize().x / 1.60 - difficultyHardText.getLocalBounds().width / 2, window.getSize().y / 3);
+    sf::Text settingText("Setting", font, 20);
+    settingText.setPosition(window.getSize().x / 2.f - settingText.getGlobalBounds().width / 2.f, 300);
 
-    sf::Text editeurText;
-    editeurText.setFont(font);
-    editeurText.setCharacterSize(30);
-    editeurText.setFillColor(sf::Color::White);
-    editeurText.setString("Editeur level");
-    editeurText.setPosition(window.getSize().x / 2.05 - editeurText.getLocalBounds().width / 2, window.getSize().y / 2.15);
+    sf::Text selectedText(">", font, 20);
+    selectedText.setFillColor(sf::Color::Red);
 
+    int selectedIndex = 0;
+    bool showDifficultyOptions = false;
 
-  
+    while (window.isOpen()) {
+        sf::Event event;
+        window.clear();
 
-    // Gestion des événements
-    sf::Event event;
+        // Affichage des menus selon l'état
+        if (skinOpened) {
+            // Affichage menu "Skin"
+            sf::Text skinTitleText("Skin", font, 30);
+            skinTitleText.setPosition(window.getSize().x / 2.f - skinTitleText.getGlobalBounds().width / 2.f, 50);
+            sf::Text skinMenuText("Choose your skin... ", font, 20);
+            skinMenuText.setPosition(window.getSize().x / 2.f - skinMenuText.getGlobalBounds().width / 2.f, 450);
 
-    // Redessiner la fenêtre selon l'état actuel
-    if (gameOpened) {
-        sf::Text difficultyTitleText;
-        difficultyTitleText.setFont(font);
-        difficultyTitleText.setCharacterSize(50);
-        difficultyTitleText.setFillColor(sf::Color::Yellow);
-        difficultyTitleText.setString("Difficulty");
-        difficultyTitleText.setPosition(window.getSize().x / 2 - difficultyTitleText.getLocalBounds().width / 2, window.getSize().y / 7);
+            window.draw(skinMenuText);
+            window.draw(skinTitleText);
+            window.display();
+            continue; // Sort de cette boucle si skinOpened est activé
+        }
 
-        sf::Text difficultyText;
-        difficultyText.setFont(font);
-        difficultyText.setCharacterSize(30);
-        difficultyText.setFillColor(sf::Color::Green);
-        difficultyText.setString("Choose your difficulty...");
-        difficultyText.setPosition(window.getSize().x / 2 - difficultyText.getLocalBounds().width / 2, window.getSize().y / 1.50);
+        if (settingOpened) {
+            // Affichage menu "Settings"
+            sf::Text settingTitleText("Settings", font, 30);
+            settingTitleText.setPosition(window.getSize().x / 2.f - settingTitleText.getGlobalBounds().width / 2.f, 50);
+            sf::Text soundText("Sound", font, 20);
+            soundText.setPosition(window.getSize().x / 3.f - soundText.getGlobalBounds().width / 2.f, 150);
 
-        window.clear();  // Vider la fenêtre avant de dessiner
-        window.draw(difficultyTitleText);
-        window.draw(difficultyNormalText);
-        window.draw(difficultyHardText);
-        window.draw(editeurText);
-        window.draw(difficultyText);
-        window.display();  // Afficher le contenu de la boutique
-    }
-
-    else if (shopOpened) {
-        // Si la boutique est ouverte, redessiner la fenêtre avec la boutique
-        sf::Text shopTitleText;
-        shopTitleText.setFont(font);
-        shopTitleText.setCharacterSize(50);
-        shopTitleText.setFillColor(sf::Color::Yellow);
-        shopTitleText.setString("Skin");
-        shopTitleText.setPosition(window.getSize().x / 2 - shopTitleText.getLocalBounds().width / 2, window.getSize().y / 8);
-
-        sf::Text skinText;
-        skinText.setFont(font);
-        skinText.setCharacterSize(30);
-        skinText.setFillColor(sf::Color::Green);
-        skinText.setString("Choose your skin...");
-        skinText.setPosition(window.getSize().x / 2 - skinText.getLocalBounds().width / 2, window.getSize().y / 1.5);
-
-        // Vider la fenêtre et afficher la boutique
-        window.clear();  // Vider la fenêtre avant de dessiner
-        window.draw(shopTitleText);
-        window.draw(skinText);
-        window.display();  // Afficher le contenu de la boutique
-    }
-    else if (settingOpened) {
-        // Si les options sont ouvertes, redessiner la fenêtre avec les paramètres
-        sf::Text settingTitleText;
-        settingTitleText.setFont(font);
-        settingTitleText.setCharacterSize(50);
-        settingTitleText.setFillColor(sf::Color::Yellow);
-        settingTitleText.setString("Setting");
-        settingTitleText.setPosition(window.getSize().x / 2 - settingTitleText.getLocalBounds().width / 2, window.getSize().y / 8);
-
-        // Vider la fenêtre et afficher les options
-        window.clear();  // Vider la fenêtre avant de dessiner
-        window.draw(settingTitleText);
-        window.draw(settingOptionText);  // Dessiner le texte "Son"
-        window.display();  // Afficher les options
-
-        if (settingSonOpened) {
-            sf::Text upSon;
-            upSon.setFont(font);
-            upSon.setCharacterSize(30);
-            upSon.setFillColor(sf::Color::White);
-            upSon.setString("more");
-            upSon.setPosition(window.getSize().x / 1.75 - upSon.getLocalBounds().width / 2, window.getSize().y / 3.75);
-
-            sf::Text downSon;
-            downSon.setFont(font);
-            downSon.setCharacterSize(30);
-            downSon.setFillColor(sf::Color::White);
-            downSon.setString("less");
-            downSon.setPosition(window.getSize().x / 2.25 - downSon.getLocalBounds().width / 2, window.getSize().y / 3.75);
-
-            // Vider la fenêtre et afficher les options
-            window.clear();  // Vider la fenêtre avant de dessiner
+            window.draw(soundText);
             window.draw(settingTitleText);
-            window.draw(settingOptionText);
-            window.draw(upSon);
-            window.draw(downSon);
-            window.display();  // Afficher les options
+            window.display();
+            continue; // Sort de cette boucle si settingOpened est activé
         }
+
+        // Affichage du menu principal si pas d'autres menus ouverts
+        if (!showDifficultyOptions) {
+            window.draw(title);
+            window.draw(settingText);
+            window.draw(skinText);
+            window.draw(playText);
+        }
+        else {
+            window.draw(title);
+            window.draw(easyText);
+            window.draw(mediumText);
+            window.draw(hardText);
+            selectedText.setPosition(window.getSize().x / 2.f - selectedText.getGlobalBounds().width / 2.f, 150 + selectedIndex * 50);
+            window.draw(selectedText);
+        }
+
+        while (window.pollEvent(event)) {
+            if (event.type == sf::Event::Closed)
+                window.close();
+
+            if (event.type == sf::Event::KeyPressed) {
+                if (event.key.code == sf::Keyboard::Up) {
+                    if (showDifficultyOptions) {
+                        selectedIndex = (selectedIndex > 0) ? selectedIndex - 1 : 2;
+                    }
+                }
+                else if (event.key.code == sf::Keyboard::Down) {
+                    if (showDifficultyOptions) {
+                        selectedIndex = (selectedIndex < 2) ? selectedIndex + 1 : 0;
+                    }
+                }
+                else if (event.key.code == sf::Keyboard::Enter) {
+                    if (!showDifficultyOptions) {
+                        showDifficultyOptions = true;
+                    }
+                    else {
+                        return static_cast<Difficulty>(selectedIndex);
+                    }
+                }
+                else if (event.key.code == sf::Keyboard::Escape) {
+                    skinOpened = false;
+                    settingOpened = false;
+                }
+            }
+
+            if (event.type == sf::Event::MouseButtonPressed) {
+                if (event.mouseButton.button == sf::Mouse::Left) {
+                    sf::Vector2i mousePos = sf::Mouse::getPosition(window);
+                    if (playText.getGlobalBounds().contains(static_cast<sf::Vector2f>(mousePos))) {
+                        showDifficultyOptions = true;
+                    }
+                    else if (showDifficultyOptions) {
+                        if (easyText.getGlobalBounds().contains(static_cast<sf::Vector2f>(mousePos))) {
+                            return Difficulty::Easy;
+                        }
+                        else if (mediumText.getGlobalBounds().contains(static_cast<sf::Vector2f>(mousePos))) {
+                            return Difficulty::Medium;
+                        }
+                        else if (hardText.getGlobalBounds().contains(static_cast<sf::Vector2f>(mousePos))) {
+                            return Difficulty::Hard;
+                        }
+                    }
+                    if (settingText.getGlobalBounds().contains(static_cast<sf::Vector2f>(mousePos))) {
+                        settingOpened = true;
+                    }
+                    if (skinText.getGlobalBounds().contains(static_cast<sf::Vector2f>(mousePos))) {
+                        skinOpened = true;
+                    }
+                }
+            }
+        }
+
+        window.display();
     }
-    else {
-        // Si la boutique et les options ne sont pas ouvertes, afficher le menu principal
-        window.clear();  // Vider la fenêtre avant de dessiner
-        window.draw(titleText);
-        window.draw(shopText);
-        window.draw(startText);
-        window.draw(settingText);
-        window.display();  // Afficher le menu principal
-    }
 
-    // Boucle d'événements
-    while (window.pollEvent(event)) {
-        if (event.type == sf::Event::Closed) {
-            window.close();
-        }
-
-        // Gestion des clics sur les boutons "Play", "Skin", "Option"
-        if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left) {
-            sf::Vector2i mousePos = sf::Mouse::getPosition(window);
-
-            if (startText.getGlobalBounds().contains(static_cast<float>(mousePos.x), static_cast<float>(mousePos.y))) {
-                gameOpened = true;
-            }
-            // Vérifier si l'utilisateur clique sur "Normal"
-            if (difficultyNormalText.getGlobalBounds().contains(static_cast<float>(mousePos.x), static_cast<float>(mousePos.y))) {
-                gameStarted1 = true;
-            }
-
-            // Vérifier si l'utilisateur clique sur "Hard"
-            if (difficultyHardText.getGlobalBounds().contains(static_cast<float>(mousePos.x), static_cast<float>(mousePos.y))) {
-                gameStarted2 = true;
-            }
-
-            // Vérifier si l'utiliseur clique sur "Editeur level"
-            if (editeurText.getGlobalBounds().contains(static_cast<float>(mousePos.x), static_cast<float>(mousePos.y))) {
-                gameStarted3 = true;
-            }
-
-            // Vérifier si l'utilisateur clique sur "Skin"
-            if (shopText.getGlobalBounds().contains(static_cast<float>(mousePos.x), static_cast<float>(mousePos.y))) {
-                shopOpened = true;
-            }
-
-            // Vérifier si l'utilisateur clique sur "Option"
-            if (settingText.getGlobalBounds().contains(static_cast<float>(mousePos.x), static_cast<float>(mousePos.y))) {
-                settingOpened = true;
-            }
-
-            // Vérifier si l'utilisateur clique sur "Son"
-            if (settingOptionText.getGlobalBounds().contains(static_cast<float>(mousePos.x), static_cast<float>(mousePos.y))) {
-                settingSonOpened = true;
-            }
-        }
-
-        // Gestion des touches "Esc" pour fermer les menus
-        if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape) {
-            shopOpened = false;
-            settingOpened = false;
-            gameOpened = false;
-        }
-    }
+    return Difficulty::Easy;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -664,6 +649,7 @@ int main() {
 
     sf::RenderWindow window(sf::VideoMode(800, 800), "Fenêtre SFML", sf::Style::None);
 
+
     sf::Clock clock;
 
     // Variables pour gérer les défilements des fonds
@@ -675,7 +661,7 @@ int main() {
     // Chargement des textures de fond
     backgroundTexture1.loadFromFile("Asset\\fond_du_jeu_etoile.png");
     backgroundTexture2.loadFromFile("Asset\\fond_du_jeu_etoile.png");
-    backgroundTexture3.loadFromFile("Asset\\fond_du_jeu_etoile_2.png");
+    backgroundTexture3.loadFromFile("Asset\fond_du_jeu_etoile_2.png");
     backgroundTexture4.loadFromFile("Asset\\fond_du_jeu_planette.png");
     backgroundTexture5.loadFromFile("Asset\\fond_planet2.png");
 
@@ -806,16 +792,17 @@ int main() {
 
     bool isExploded = false;
     bool gameOver = false;
-    bool gameStarted1 = false;
-    bool shopOpened = false;
-    bool settingOpened = false;
-    bool settingSonOpened = false;
-    bool difficulty = false;
+
+
+
+
+
     bool gameOpened = false;
-    bool difficultyNormalOpened = false;
-    bool difficultyHardOpened = false;
-    bool gameStarted2 = false;
-    bool gameStarted3 = false;
+    bool settingOpened = false;
+    bool skinOpened = false;
+    bool menuActif = false;
+
+
     bool bossAppeared = false;
     bool isMultiShotActive = false;
     bool shieldActive = false;
@@ -838,86 +825,42 @@ int main() {
     float laserShootTimer = 0.0f;
     float laserShootDuration = 5.0f;
 
+
+
     // Seuil de score pour l'apparition du boss
     int bossScoreThreshold = 250;
+    // Ajout de la fonction pour le menu de difficulté
+    difficulty = showDifficultyMenu(window, settingOpened, skinOpened, menuActif);
 
-    while (window.isOpen() && !gameStarted1) {
-        mainMenu(window, gameStarted1, shopOpened, settingOpened, settingSonOpened, difficulty, gameOpened, difficultyNormalOpened, difficultyHardOpened, gameStarted2, gameStarted3);
+
+
+    // Ajuster les paramètres de difficulté
+    switch (difficulty) {
+    case Easy:
+        backgroundSpeed = 50.0f;
+        enemySpawnInterval = 3;
+        break;
+    case Medium:
+        backgroundSpeed = 50.0f;
+        enemySpawnInterval = 2;
+        break;
+    case Hard:
+        backgroundSpeed = 50.0f;
+        enemySpawnInterval = 1;
+        break;
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     // Loop principal du jeu
-    while (window.isOpen() && gameStarted1) {
+    while (window.isOpen()) {
         float deltaTime = clock.restart().asSeconds();
+
 
         sf::Event event;
         while (window.pollEvent(event)) {
             if (event.type == sf::Event::Closed)
                 window.close();
         }
+
 
         // Déplacer les fonds verticalement pour créer un effet de parallaxe
         backgroundSprite1.move(0, backgroundSpeed * deltaTime);
@@ -1132,7 +1075,7 @@ int main() {
                     bullets.erase(bullets.begin() + i);
                     enemies.erase(enemies.begin() + j);
                     score += 1;
-                    if (rand() % 100 < 10) {
+                    if (rand() % 100 < 25) {
                         multiShotBonuses.push_back(MultiShotBonus(enemies[j].sprite.getPosition().x, enemies[j].sprite.getPosition().y, MultiTirs));
                         std::cout << "Bonus de multitir genere !" << std::endl;
                     }
@@ -1213,7 +1156,7 @@ int main() {
                         sniperEnemies.erase(sniperEnemies.begin() + j);
                         score += 3;
 
-                        if (rand() % 100) {
+                        if (rand() % 100 < 10) {
                             laserBonuses.push_back(LaserBonus(sniperEnemies[j].sprite.getPosition().x, sniperEnemies[j].sprite.getPosition().y, Laser));
                             std::cout << "Laser Bonus generer !" << std::endl;
                         }
@@ -1448,8 +1391,4 @@ int main() {
 
     return 0;
 }
-  
-
-
-
 
